@@ -1,13 +1,13 @@
 import openai
 import streamlit as st
 from PIL import Image
-import pytesseract  # Ensure to have pytesseract installed
-import tiktoken  # Ensure to have tiktoken installed
-import pandas as pd  # Ensure to have pandas installed
-import os  # To handle file paths
+import pytesseract
+import tiktoken
+import pandas as pd
+import os
 
-# Replace with your actual API key
-openai.api_key = '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'
+# Access the API key from Streamlit secrets
+openai.api_key = st.secrets["openai"]["api_key"]
 
 # Function to get response from GPT based on the extracted text
 def get_gpt_response(extracted_text):
@@ -128,5 +128,3 @@ def upload_receipt(username, selected_profile):
             df_updated = pd.read_excel(excel_file_path, engine='openpyxl')
             st.dataframe(df_updated)  # Display the updated records in a DataFrame format
 
-# Example usage of the upload_receipt function (you can call this from your Streamlit app)
-# upload_receipt("username_example", "profile_name_example")  # Uncomment and modify as needed
