@@ -1,4 +1,3 @@
-tesseract-ocr
 streamlit
 pandas
 Pillow  # For working with images (from PIL import Image)
