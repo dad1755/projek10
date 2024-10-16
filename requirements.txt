@@ -1,0 +1,6 @@
+streamlit
+pandas
+Pillow  # For working with images (from PIL import Image)
+pytesseract  # For OCR functionality
+tiktoken  # Tokenizing library, used with models like GPT
+openai  # For interacting with OpenAI API
