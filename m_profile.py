@@ -16,10 +16,21 @@ def load_profiles_from_csv(username):
         return df['Profile'].tolist()  # Return profiles as a list
     return []
 
-# Function to delete a profile
+# Function to delete a profile and its associated Excel file
 def delete_profile(profile_name, profiles, username):
     profiles.remove(profile_name)
     save_profiles_to_csv(profiles, username)  # Save the updated profiles to CSV
+
+    # Define the file path for the profile's Excel file
+    excel_file_path = f'user_folders/{username}/{profile_name}.xlsx'
+
+    # Check if the Excel file exists and delete it
+    if os.path.exists(excel_file_path):
+        os.remove(excel_file_path)  # Delete the Excel file
+        st.success(f"Profile '{profile_name}' and its associated Excel file have been deleted successfully.")
+    else:
+        st.warning(f"The Excel file for profile '{profile_name}' does not exist.")
+
     st.rerun()  # Reload the page after deletion
 
 def download_profile(profile_name, username):
