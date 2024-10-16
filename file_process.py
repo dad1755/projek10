@@ -26,7 +26,7 @@ def get_gpt_response(extracted_text):
 
 # Function to calculate the token count accurately
 def calculate_token_count(messages):
-    enc = tiktoken.encoding_for_model("gpt-4")  # Use the appropriate model
+    enc = tiktoken.encoding_for_model("gpt-4o-mini")  # Use the appropriate model
     token_count = 0
     for message in messages:
         token_count += len(enc.encode(message['content']))  # Accurate token count
