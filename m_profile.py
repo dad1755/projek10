@@ -108,8 +108,9 @@ def display_profile():
 
             # Show the delete button in the first column
             with col1:
-                if st.button("Delete Profile"):
-                    st.session_state['confirm_deletion'] = True  # Show confirmation buttons
+                if not st.session_state['confirm_deletion']:
+                    if st.button("Delete Profile"):
+                        st.session_state['confirm_deletion'] = True  # Show confirmation buttons
 
                 # If deletion is confirmed, show confirm and cancel buttons
                 if st.session_state['confirm_deletion']:
