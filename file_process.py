@@ -16,7 +16,7 @@ def get_gpt_response(extracted_text):
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",  # Adjust the model if needed
             messages=[
-                {"role": "user", "content": "Extract Store name:, Date:, Item Purchase:  and its corresponding Price on separate lines. Ensure each item is on a new line without extra punctuation or symbols."},
+                {"role": "user", "content": "Extract Store name:, Item Purchase:  and its corresponding Price. Ensure each item is on a new line without extra punctuation or symbols."},
                 {"role": "user", "content": extracted_text},
             ],
         )
