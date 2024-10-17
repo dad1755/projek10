@@ -37,14 +37,18 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
     """Update the existing Excel file with the extracted receipt details."""
     lines = gpt_response.strip().split("\n")  # Split the response into lines
     store_name = lines[0].replace("Store name:", "").strip()  # Extract store name
-    # date = lines[1].replace("Date:", "").strip()  # Uncomment if you want to extract date
     items = []
 
     # Loop through the remaining lines to extract items and prices
-    for i in range(2, len(lines) - 1, 2):  # Loop through pairs of item and price
-        item_name = lines[i].replace("Item Purchase:", "").strip()
-        price = lines[i + 1].replace("Price:", "").strip()
-        items.append({"Store Name": store_name, "Item Purchased": item_name, "Price": price})
+    for i in range(1, len(lines)):  # Start from the second line
+        line = lines[i].strip()
+        if line.startswith("Item Purchase:"):
+            item_name = line.replace("Item Purchase:", "").strip()
+            # The next line should contain the price
+            if i + 1 < len(lines) and lines[i + 1].startswith("Price:"):
+                price = lines[i + 1].replace("Price:", "").strip()
+                items.append({"Store Name": store_name, "Item Purchased": item_name, "Price": price})
+                i += 1  # Skip the price line since we already processed it
 
     # Define the path to the existing Excel file
     excel_file_path = f'user_folders/{username}/{profile_name}.xlsx'
@@ -57,11 +61,8 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
         # Create a new DataFrame if the file doesn't exist
         df = pd.DataFrame(columns=["Store Name", "Date", "Item Purchased", "Price"])
 
-    # Create a new DataFrame for the new items with store name and optional date
+    # Create a new DataFrame for the new items
     new_items_df = pd.DataFrame(items)
-
-    # If you want to include the date, uncomment the next line and add it to the items dictionary
-    # new_items_df['Date'] = date  # Add date if extracted
 
     # Append new items to the DataFrame
     df = pd.concat([df, new_items_df], ignore_index=True)
@@ -70,7 +71,6 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
     df.to_excel(excel_file_path, index=False, engine='openpyxl')
 
     return excel_file_path  # Return the path of the updated Excel file
-
 
 # Function to create a new Excel file for the profile
 def create_excel_file(profile_name, username):
