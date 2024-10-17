@@ -40,14 +40,14 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
     """Update the existing Excel file with the extracted receipt details."""
     lines = gpt_response.strip().split("\n")  # Split the response into lines
     store_name = lines[0].replace("Store name:", "").strip()  # Extract store name
-    date = lines[1].replace("Date:", "").strip()  # Extract date
+    #date = lines[1].replace("Date:", "").strip()  # Extract date
     items = []
 
     # Loop through the remaining lines to extract items and prices
     for i in range(2, len(lines) - 1, 2):  # Loop through pairs of item and price
         item_name = lines[i].replace("Item Purchase:", "").strip()
         price = lines[i + 1].replace("Price:", "").strip()
-        items.append({"Store Name": store_name, "Date": date, "Item Purchased": item_name, "Price": price})
+        items.append({"Store Name": store_name, "Item Purchased": item_name, "Price": price})
 
     # Define the path to the existing Excel file
     excel_file_path = f'user_folders/{username}/{profile_name}.xlsx'
