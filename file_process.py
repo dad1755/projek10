@@ -123,9 +123,21 @@ def upload_receipt(username, selected_profile):
         st.write(f"Total tokens for this request: {total_tokens}")
 
         # Call the update function after getting the GPT response
+        # Call the update function after getting the GPT response
         if gpt_response:  # Ensure there's a response before saving
             excel_file_path = update_receipt_in_excel(gpt_response, selected_profile, username)
             st.success(f"Record Updated")
+        
+            # Read the updated Excel file
             df_updated = pd.read_excel(excel_file_path, engine='openpyxl')
-            st.dataframe(df_updated)  # Display the updated records in a DataFrame format
+        
+            # Option 1: Sort the DataFrame by the index in reverse order (latest entry at the top)
+            df_updated = df_updated.iloc[::-1].reset_index(drop=True)
+        
+            # Option 2: If using a 'Date' column, sort by 'Date' (uncomment this if you want to use this method)
+            # df_updated = df_updated.sort_values(by='Date', ascending=False).reset_index(drop=True)
+        
+            # Display the updated records with the latest one at the top
+            st.dataframe(df_updated)
+
 
