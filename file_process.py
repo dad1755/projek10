@@ -16,7 +16,7 @@ def get_gpt_response(extracted_text):
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",  # Adjust the model if needed
             messages=[
-                {"role": "user", "content": "Extract and display ONLY the Store Name : , followed by each Item Purchase:  and its corresponding Price on separate lines. Ensure each item is on a new line without extra punctuation or symbols.Careful with the quantity"},
+                {"role": "user", "content": "Extract Store name:, Date:, Item Purchase:  and its corresponding Price on separate lines. Ensure each item is on a new line without extra punctuation or symbols.Careful with the quantity"},
                 {"role": "user", "content": extracted_text},
             ],
         )
@@ -37,13 +37,14 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
     """Update the existing Excel file with the extracted receipt details."""
     lines = gpt_response.strip().split("\n")  # Split the response into lines
     store_name = lines[0].replace("Store Name:", "").strip()  # Extract store name
+    date = lines[1].replace("Date:", "").strip()  # Extract date
     items = []
 
     # Loop through the remaining lines to extract items and prices
-    for i in range(1, len(lines)-1, 2):  # Loop through pairs of item and price
+    for i in range(2, len(lines)-1, 2):  # Loop through pairs of item and price, starting from the 3rd line
         item_name = lines[i].replace("Item Purchase:", "").strip()
         price = lines[i + 1].replace("Price:", "").strip()
-        items.append({"Store Name": store_name, "Item Purchased": item_name, "Price": price})
+        items.append({"Store Name": store_name, "Date": date, "Item Purchased": item_name, "Price": price})
 
     # Define the path to the existing Excel file
     excel_file_path = f'user_folders/{username}/{profile_name}.xlsx'
@@ -54,7 +55,7 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
         df = pd.read_excel(excel_file_path, engine='openpyxl')
     else:
         # Create a new DataFrame if the file doesn't exist
-        df = pd.DataFrame(columns=["Store Name", "Item Purchased", "Price"])
+        df = pd.DataFrame(columns=["Store Name", "Date", "Item Purchased", "Price"])
 
     # Append new items to the DataFrame
     new_items_df = pd.DataFrame(items)
