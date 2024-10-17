@@ -33,14 +33,11 @@ def calculate_token_count(messages):
     return token_count
 
 # Function to update receipt details into an existing Excel file
-import os
-import pandas as pd
-
 def update_receipt_in_excel(gpt_response, profile_name, username):
     """Update the existing Excel file with the extracted receipt details."""
     lines = gpt_response.strip().split("\n")  # Split the response into lines
     store_name = lines[0].replace("Store name:", "").strip()  # Extract store name
-    #date = lines[1].replace("Date:", "").strip()  # Extract date
+    # date = lines[1].replace("Date:", "").strip()  # Uncomment if you want to extract date
     items = []
 
     # Loop through the remaining lines to extract items and prices
@@ -60,14 +57,20 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
         # Create a new DataFrame if the file doesn't exist
         df = pd.DataFrame(columns=["Store Name", "Date", "Item Purchased", "Price"])
 
-    # Append new items to the DataFrame
+    # Create a new DataFrame for the new items with store name and optional date
     new_items_df = pd.DataFrame(items)
+
+    # If you want to include the date, uncomment the next line and add it to the items dictionary
+    # new_items_df['Date'] = date  # Add date if extracted
+
+    # Append new items to the DataFrame
     df = pd.concat([df, new_items_df], ignore_index=True)
 
     # Save the updated DataFrame back to the Excel file
     df.to_excel(excel_file_path, index=False, engine='openpyxl')
 
     return excel_file_path  # Return the path of the updated Excel file
+
 
 # Function to create a new Excel file for the profile
 def create_excel_file(profile_name, username):
