@@ -6,7 +6,7 @@ from m_profile import display_profile  # Import the profile display function
 from file_process import upload_receipt  # Import the upload function
 
 # Set page configuration
-st.set_page_config(page_title="Dynamic Login Page", page_icon="🔐", layout="centered")
+st.set_page_config(page_title="Projek 10", page_icon="🔐", layout="centered")
 
 # Load user credentials from a CSV file
 def load_user_credentials():
