@@ -39,7 +39,7 @@ import pandas as pd
 def update_receipt_in_excel(gpt_response, profile_name, username):
     """Update the existing Excel file with the extracted receipt details."""
     lines = gpt_response.strip().split("\n")  # Split the response into lines
-    store_name = lines[0].replace("Store Name:", "").strip()  # Extract store name
+    store_name = lines[0].replace("Store name:", "").strip()  # Extract store name
     date = lines[1].replace("Date:", "").strip()  # Extract date
     items = []
 
