@@ -94,6 +94,13 @@ def upload_receipt(username, selected_profile):
         # Resize the image (you can adjust the size as needed)
         max_size = (900, 900)  # Set maximum width and height to reduce data size
         image.thumbnail(max_size)
+                # Convert the image to black and white (grayscale)
+        bw_image = image.convert("L")
+
+        # You can now perform OCR on bw_image
+
+        # Optionally, display the black and white image
+        #st.image(bw_image, caption="Black and White Receipt", use_column_width=True)
 
         # Use st.columns to create a two-column layout
         col1, col2 = st.columns([2, 2])  # Adjust width ratio as needed
