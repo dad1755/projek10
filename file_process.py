@@ -69,7 +69,7 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
 # Function to create a new Excel file for the profile
 def create_excel_file(profile_name, username):
     # Create a new DataFrame for the profile
-    df = pd.DataFrame(columns=["Store Name", "Item Purchased", "Price"])  # Customize the columns as needed
+    df = pd.DataFrame(columns=["Store Name", "Date", "Item Purchased", "Price"])  # Customize the columns as needed
     excel_file_path = f'user_folders/{username}/{profile_name}.xlsx'
     df.to_excel(excel_file_path, index=False)  # Save the DataFrame to an Excel file
 
