@@ -33,6 +33,9 @@ def calculate_token_count(messages):
     return token_count
 
 # Function to update receipt details into an existing Excel file
+import os
+import pandas as pd
+
 def update_receipt_in_excel(gpt_response, profile_name, username):
     """Update the existing Excel file with the extracted receipt details."""
     lines = gpt_response.strip().split("\n")  # Split the response into lines
@@ -41,7 +44,7 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
     items = []
 
     # Loop through the remaining lines to extract items and prices
-    for i in range(2, len(lines)-1, 2):  # Loop through pairs of item and price, starting from the 3rd line
+    for i in range(2, len(lines) - 1, 2):  # Loop through pairs of item and price
         item_name = lines[i].replace("Item Purchase:", "").strip()
         price = lines[i + 1].replace("Price:", "").strip()
         items.append({"Store Name": store_name, "Date": date, "Item Purchased": item_name, "Price": price})
