@@ -16,7 +16,8 @@ def get_gpt_response(extracted_text):
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",  # Adjust the model if needed
             messages=[
-                {"role": "user", "content": "Extract Store name:, Item Purchase:  and its corresponding Price. Ensure each item is on a new line without extra punctuation or symbols."},
+                {"role": "system", "content": "Extract the key details from any receipt or invoice. The details should include:"},
+                {"role": "user", "content": "Store Name:\nInvoice or Receipt Number:\nItem Description:\nItem Price:"},
                 {"role": "user", "content": extracted_text},
             ],
         )
@@ -36,19 +37,28 @@ def calculate_token_count(messages):
 def update_receipt_in_excel(gpt_response, profile_name, username):
     """Update the existing Excel file with the extracted receipt details."""
     lines = gpt_response.strip().split("\n")  # Split the response into lines
-    store_name = lines[0].replace("Store name:", "").strip()  # Extract store name
+    store_name = None
+    invoice_number = None
     items = []
 
-    # Loop through the remaining lines to extract items and prices
-    for i in range(1, len(lines)):  # Start from the second line
-        line = lines[i].strip()
-        if line.startswith("Item Purchase:"):
-            item_name = line.replace("Item Purchase:", "").strip()
-            # The next line should contain the price
-            if i + 1 < len(lines) and lines[i + 1].startswith("Price:"):
-                price = lines[i + 1].replace("Price:", "").strip()
-                items.append({"Store Name": store_name, "Item Purchased": item_name, "Price": price})
-                i += 1  # Skip the price line since we already processed it
+    # Loop through the lines to extract key information
+    for line in lines:
+        if line.startswith("Store Name:"):
+            store_name = line.replace("Store Name:", "").strip()
+        elif line.startswith("Invoice or Receipt Number:"):
+            invoice_number = line.replace("Invoice or Receipt Number:", "").strip()
+        elif line.startswith("Item Description:"):
+            item_description = line.replace("Item Description:", "").strip()
+            item_price = ""
+            # Check if the next line contains the price
+            if "Item Price:" in line:
+                item_price = line.replace("Item Price:", "").strip()
+            items.append({
+                "Store Name": store_name,
+                "Invoice Number": invoice_number,
+                "Item Description": item_description,
+                "Price": item_price
+            })
 
     # Define the path to the existing Excel file
     excel_file_path = f'user_folders/{username}/{profile_name}.xlsx'
@@ -59,7 +69,7 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
         df = pd.read_excel(excel_file_path, engine='openpyxl')
     else:
         # Create a new DataFrame if the file doesn't exist
-        df = pd.DataFrame(columns=["Store Name", "Date", "Item Purchased", "Price"])
+        df = pd.DataFrame(columns=["Store Name", "Invoice Number", "Item Description", "Price"])
 
     # Create a new DataFrame for the new items
     new_items_df = pd.DataFrame(items)
@@ -75,7 +85,7 @@ def update_receipt_in_excel(gpt_response, profile_name, username):
 # Function to create a new Excel file for the profile
 def create_excel_file(profile_name, username):
     # Create a new DataFrame for the profile
-    df = pd.DataFrame(columns=["Store Name", "Date", "Item Purchased", "Price"])  # Customize the columns as needed
+    df = pd.DataFrame(columns=["Store Name", "Invoice Number", "Item Description", "Price"])  # Customize the columns as needed
     excel_file_path = f'user_folders/{username}/{profile_name}.xlsx'
     df.to_excel(excel_file_path, index=False)  # Save the DataFrame to an Excel file
 
@@ -97,27 +107,21 @@ def upload_receipt(username, selected_profile):
         # Resize the image (you can adjust the size as needed)
         max_size = (900, 900)  # Set maximum width and height to reduce data size
         image.thumbnail(max_size)
-                # Convert the image to black and white (grayscale)
+        
+        # Convert the image to black and white (grayscale) and enhance contrast
         bw_image = image.convert("L")
 
-        # You can now perform OCR on bw_image
-
-        # Optionally, display the black and white image
-        #st.image(bw_image, caption="Black and White Receipt", use_column_width=True)
-
-        # Use st.columns to create a two-column layout
+        # Display the uploaded image in the first column
         col1, col2 = st.columns([2, 2])  # Adjust width ratio as needed
-
-        # Display the image in the first column
         with col1:
-            st.image(image, caption='Uploaded Image', width=250)  # Width can be adjusted
+            st.image(image, caption='Uploaded Image', width=250)
 
         # Use OCR to extract text from the image
-        extracted_text = pytesseract.image_to_string(image)
+        extracted_text = pytesseract.image_to_string(bw_image)
 
         # Prepare messages for token count
         messages = [
-            {"role": "user", "content": "Answer any questions in the following text."},
+            {"role": "user", "content": "Extract the main details from this text."},
             {"role": "user", "content": extracted_text}
         ]
 
@@ -131,11 +135,8 @@ def upload_receipt(username, selected_profile):
 
         # Calculate token count
         total_tokens = calculate_token_count(messages)
-
-        # Display token count below the GPT response
         st.write(f"Total tokens for this request: {total_tokens}")
 
-        # Call the update function after getting the GPT response
         # Call the update function after getting the GPT response
         if gpt_response:  # Ensure there's a response before saving
             excel_file_path = update_receipt_in_excel(gpt_response, selected_profile, username)
@@ -147,10 +148,5 @@ def upload_receipt(username, selected_profile):
             # Option 1: Sort the DataFrame by the index in reverse order (latest entry at the top)
             df_updated = df_updated.iloc[::-1].reset_index(drop=True)
         
-            # Option 2: If using a 'Date' column, sort by 'Date' (uncomment this if you want to use this method)
-            # df_updated = df_updated.sort_values(by='Date', ascending=False).reset_index(drop=True)
-        
             # Display the updated records with the latest one at the top
             st.dataframe(df_updated)
-
-
